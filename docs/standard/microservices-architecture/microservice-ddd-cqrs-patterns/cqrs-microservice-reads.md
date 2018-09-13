@@ -13,7 +13,7 @@ ms.locfileid: "37105218"
 ---
 # <a name="implementing-readsqueries-in-a-cqrs-microservice"></a>Implementando leituras/consultas em um microsserviço CQRS
 
-Para leituras/consultas, o microsserviço de ordenação do aplicativo de referência eShopOnContainers implementa as consultas independentemente do modelo DDD e da área transacional. Isso foi feito principalmente porque as exigências para consultas e transações são totalmente diferentes. Grava transações de execução que devem estar em conformidade com a lógica do domínio. Consultas, por outro lado, são idempotentes e podem ser separadas das regras de domínio.
+Para leituras/consultas, o microsserviço de pedidos do aplicativo de referência eShopOnContainers implementa as consultas independentemente do modelo DDD e da área transacional. Isso foi feito principalmente porque as exigências para consultas e transações são totalmente diferentes. Grava transações de execução que devem estar em conformidade com a lógica do domínio. Consultas, por outro lado, são idempotentes e podem ser separadas das regras de domínio.
 
 A abordagem é simples, conforme mostra a Figura 9-3. A interface de API é implementada pelos controladores de API da Web usando qualquer infraestrutura, como um micro ORM (Mapeador Relacional de Objeto) como Dapper e retornando ViewModels dinâmicos dependendo das necessidades dos aplicativos de interface do usuário.
 
@@ -21,13 +21,13 @@ A abordagem é simples, conforme mostra a Figura 9-3. A interface de API é impl
 
 **Figura 9-3**. A abordagem mais simples para consultas em um microsserviço CQRS
 
-Essa é a abordagem mais simples possível para consultas. As definições de consulta consultam o banco de dados e retornam um ViewModel dinâmico criado dinamicamente para cada consulta. Uma vez que as consultas são idempotentes, elas não alteram os dados, não importa quantas vezes você execute uma consulta. Portanto, você não precisa estar restrito por nenhum padrão DDD usado no lado do transacional, como agregações e outros padrões, e é por isso que as consultas são separadas da área de trabalho transacional. Você simplesmente consulta o banco de dados para os dados de que a interface do usuário precisa e retorna um ViewModel dinâmico que não precisa ser estaticamente definido em nenhum lugar (nenhuma classe para os ViewModels), exceto nas próprias instruções SQL.
+Essa é a abordagem mais simples possível para consultas. As definições de consulta, consultam o banco de dados e retornam um ViewModel dinâmico criado dinamicamente para cada consulta. Uma vez que as consultas são idempotentes, elas não alteram os dados, não importa quantas vezes você execute uma consulta. Portanto, você não precisa estar restrito por nenhum padrão DDD usado no lado do transacional, como agregações e outros padrões, e é por isso que as consultas são separadas da área de trabalho transacional. Você simplesmente consulta o banco de dados para os dados de que a interface do usuário precisa e retorna um ViewModel dinâmico que não precisa ser estaticamente definido em nenhum lugar (nenhuma classe para os ViewModels), exceto nas próprias instruções SQL.
 
 Como essa é uma abordagem simples, o código necessário para o lado de consultas (como o código usando um micro ORM como [Dapper](https://github.com/StackExchange/Dapper)) pode ser implementado [dentro do mesmo projeto de API da Web](https://github.com/dotnet-architecture/eShopOnContainers/blob/master/src/Services/Ordering/Ordering.API/Application/Queries/OrderQueries.cs). A Figura 9-4 mostra isso. As consultas são definidas no projeto de microsserviço **Ordering.API** dentro da solução eShopOnContainers.
 
 ![](./media/image4.png)
 
-**Figura 9-4**. Consultas no microsserviço de Ordenação em eShopOnContainers
+**Figura 9-4**. Consultas no microsserviço de Pedidos em eShopOnContainers
 
 ## <a name="using-viewmodels-specifically-made-for-client-apps-independent-from-domain-model-constraints"></a>Usando ViewModels feitos especificamente para aplicativos cliente, independentemente de restrições do modelo de domínio
 
@@ -35,11 +35,11 @@ Uma vez que as consultas são executadas para obter os dados necessários para o
 
 Os dados retornados (ViewModel) podem ser o resultado da associação de dados de várias entidades ou tabelas no banco de dados, ou mesmo entre várias agregações definidas no modelo de domínio para a área transacional. Nesse caso, porque você está criando consultas independentes do modelo de domínio, os limites de agregações e as restrições são completamente ignorados e você é livre para consultar qualquer tabela e coluna de que possa precisar. Essa abordagem fornece grande flexibilidade e produtividade para os desenvolvedores criarem ou atualizarem as consultas.
 
-Os ViewModels podem ser tipos estáticos definidos nas classes. Ou eles podem ser criados dinamicamente com base nas consultas executadas (conforme implementado no microsserviço de ordenação), que é muito ágil para desenvolvedores.
+Os ViewModels podem ser tipos estáticos definidos nas classes. Ou eles podem ser criados dinamicamente com base nas consultas executadas (conforme implementado no microsserviço de pedidos), que é muito ágil para desenvolvedores.
 
 ## <a name="using-dapper-as-a-micro-orm-to-perform-queries"></a>Usando o Dapper como um micro ORM para executar consultas
 
-Você pode usar qualquer micro ORM, Entity Framework Core ou até mesmo ADO.NET simples para a consulta. O aplicativo de exemplo, o Dapper foi selecionado para o microsserviço de ordenação em eShopOnContainers como um bom exemplo de um micro ORM popular. Ele pode executar consultas SQL simples com alto desempenho, pois é uma estrutura muito leve. Usando o Dapper, você pode escrever uma consulta SQL que pode acessar e unir várias tabelas.
+Você pode usar qualquer micro ORM, Entity Framework Core ou até mesmo ADO.NET simples para a consulta. O aplicativo de exemplo, o Dapper foi selecionado para o microsserviço de pedidos em eShopOnContainers como um bom exemplo de um micro ORM popular. Ele pode executar consultas SQL simples com alto desempenho, pois é uma estrutura muito leve. Usando o Dapper, você pode escrever uma consulta SQL que pode acessar e unir várias tabelas.
 
 O Dapper é um projeto de software livre (original criado por Sam Saffron) e faz parte dos blocos de construção usado no [Stack Overflow](https://stackoverflow.com/). Para usar o Dapper, basta instalá-lo por meio do [pacote Dapper NuGet](https://www.nuget.org/packages/Dapper), conforme mostra a figura a seguir:
 
@@ -101,7 +101,7 @@ Se você quiser especificar os tipos de resposta para o Swagger, precisará usar
 
 *Contras:* conforme mencionado anteriormente, ao atualizar o código, serão necessárias mais algumas etapas para atualizar as classes DTO.
 
-*Dica com base em nossa experiência:* nas consultas implementadas no microsserviço de Ordenação em eShopOnContainers, começamos a desenvolver usando ViewModels dinâmico, pois ele era muito simples e mais ágil nos primeiros estágios de desenvolvimento. No entanto, quando o desenvolvimento foi estabilizado, escolhemos refatorar as APIs e usar DTOs estáticos ou predefinidos para ViewModels, pois fica mais claro para os consumidores do microsserviço conhecer os tipos de DTO explícitos, usados como "contratos".
+*Dica com base em nossa experiência:* nas consultas implementadas no microsserviço de Pedidos em eShopOnContainers, começamos a desenvolver usando ViewModels dinâmico, pois ele era muito simples e mais ágil nos primeiros estágios de desenvolvimento. No entanto, quando o desenvolvimento foi estabilizado, escolhemos refatorar as APIs e usar DTOs estáticos ou predefinidos para ViewModels, pois fica mais claro para os consumidores do microsserviço conhecer os tipos de DTO explícitos, usados como "contratos".
 
 No exemplo a seguir, você pode ver como a consulta está retornando dados usando uma classe DTO ViewModel explícita: a classe OrderSummary.
 
