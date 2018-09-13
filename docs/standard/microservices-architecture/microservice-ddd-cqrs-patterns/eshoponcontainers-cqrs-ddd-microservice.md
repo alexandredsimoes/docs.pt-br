@@ -13,7 +13,7 @@ ms.locfileid: "37106743"
 ---
 # <a name="applying-cqrs-and-cqs-approaches-in-a-ddd-microservice-in-eshoponcontainers"></a>Aplicando abordagens CQRS e CQS em um microsserviço DDD em eShopOnContainers
 
-O design do microsserviço de ordenação no aplicativo de referência eShopOnContainers é baseado nos princípios CQRS. No entanto, ele usa a abordagem mais simples, que está separando as consultas dos comandos e usando o mesmo banco de dados para ambas as ações.
+O design do microsserviço de pedidos no aplicativo de referência eShopOnContainers é baseado nos princípios CQRS. No entanto, ele usa a abordagem mais simples, que está separando as consultas dos comandos e usando o mesmo banco de dados para ambas as ações.
 
 A essência desses padrões, e o ponto importante aqui, é que as consultas são idempotentes: não importa quantas vezes você consulte um sistema, o estado desse sistema não será alterado. Você pode até mesmo usar um modelo de dados de "leituras" diferente do modelo de domínio de "gravações" de lógica transacional, embora os microsserviços de ordenação estejam usando o mesmo banco de dados. Portanto, essa é uma abordagem CQRS simplificada.
 
